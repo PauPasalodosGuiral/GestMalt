@@ -31,15 +31,12 @@ public class Main {
         System.out.println("SISTEMA DE CLÍNICA VETERINARIA INTEGRADO");
         conectarBD();
         leerPropietarios();
-        leerPacientes();
-        leerVeterinarios();
-        leerCitas();
-        leerHistorial();
-        leerVacunas();
-        leerFacturas();
-        leerUsuarios();
+        eliminarPropietario(11);
+        leerPropietarios();
         cerrarConexion();
     }
+
+    // ==================== ABRIR CONEXION DB ====================
 
     public static void conectarBD() {
         String url = "jdbc:postgresql://ep-lively-sunset-aby2qoj7-pooler.eu-west-2.aws.neon.tech:5432/proyecto_alumno4?sslmode=require";
@@ -57,6 +54,21 @@ public class Main {
             e.printStackTrace();
         }
     }
+
+    // ==================== CERRAR CONEXION DB ====================
+
+    public static void cerrarConexion() {
+        try {
+            if (con != null && !con.isClosed()) {
+                con.close();
+                System.out.println("\nConexión cerrada correctamente.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al cerrar conexión: " + e.getMessage());
+        }
+    }
+
+    // ==================== LEER TUPLAS ====================
 
     public static void leerPropietarios() {
         String sql = "SELECT * FROM Propietario";
@@ -282,14 +294,216 @@ public class Main {
         }
     }
 
-    public static void cerrarConexion() {
-        try {
-            if (con != null && !con.isClosed()) {
-                con.close();
-                System.out.println("\nConexión cerrada correctamente.");
-            }
+    // ==================== CREAR TUPLAS ====================
+
+    public static void crearPropietario(String nombre, String telefono, String direccion, String email) {
+        String sql = "INSERT INTO Propietario (nombre, telefono, direccion, email) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setString(2, telefono);
+            ps.setString(3, direccion);
+            ps.setString(4, email);
+            ps.executeUpdate();
+            System.out.println("✓ Propietario '" + nombre + "' creado correctamente.");
         } catch (SQLException e) {
-            System.err.println("Error al cerrar conexión: " + e.getMessage());
+            System.err.println("✗ Error al crear propietario: " + e.getMessage());
         }
     }
+
+    public static void crearPaciente(String nombre, String especie, String raza, int edad, double peso, int idPropietario) {
+        String sql = "INSERT INTO Paciente (nombre, especie, raza, edad, peso, idPropietario) VALUES (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setString(2, especie);
+            ps.setString(3, raza);
+            ps.setInt(4, edad);
+            ps.setDouble(5, peso);
+            ps.setInt(6, idPropietario);
+            ps.executeUpdate();
+            System.out.println("✓ Paciente '" + nombre + "' creado correctamente.");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al crear paciente: " + e.getMessage());
+        }
+    }
+
+    public static void crearVeterinario(String nombre, String especialidad, String telefono) {
+        String sql = "INSERT INTO Veterinario (nombre, especialidad, telefono) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setString(2, especialidad);
+            ps.setString(3, telefono);
+            ps.executeUpdate();
+            System.out.println("✓ Veterinario '" + nombre + "' creado correctamente.");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al crear veterinario: " + e.getMessage());
+        }
+    }
+
+    public static void crearCita(int idPaciente, int idVeterinario, String fechaHora, String tipo) {
+        String sql = "INSERT INTO Cita (idPaciente, idVeterinario, fechaHora, tipo) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPaciente);
+            ps.setInt(2, idVeterinario);
+            ps.setString(3, fechaHora);
+            ps.setString(4, tipo);
+            ps.executeUpdate();
+            System.out.println("✓ Cita creada correctamente.");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al crear cita: " + e.getMessage());
+        }
+    }
+
+    public static void crearHistorial(int idPaciente, String fecha, String motivo, String tratamiento) {
+        String sql = "INSERT INTO Historial (idPaciente, fecha, motivo, tratamiento) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPaciente);
+            ps.setString(2, fecha);
+            ps.setString(3, motivo);
+            ps.setString(4, tratamiento);
+            ps.executeUpdate();
+            System.out.println("✓ Historial creado correctamente.");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al crear historial: " + e.getMessage());
+        }
+    }
+
+    public static void crearVacuna(int idPaciente, String nombre, String fechaAplicacion) {
+        String sql = "INSERT INTO Vacuna (idPaciente, nombre, fechaAplicacion) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPaciente);
+            ps.setString(2, nombre);
+            ps.setString(3, fechaAplicacion);
+            ps.executeUpdate();
+            System.out.println("✓ Vacuna '" + nombre + "' creada correctamente.");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al crear vacuna: " + e.getMessage());
+        }
+    }
+
+    public static void crearFactura(int idCita, String fecha, double importe, String concepto) {
+        String sql = "INSERT INTO Factura (idCita, fecha, importe, concepto) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idCita);
+            ps.setString(2, fecha);
+            ps.setDouble(3, importe);
+            ps.setString(4, concepto);
+            ps.executeUpdate();
+            System.out.println("✓ Factura creada correctamente.");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al crear factura: " + e.getMessage());
+        }
+    }
+
+    public static void crearUsuario(String username, String password, String rol) {
+        String sql = "INSERT INTO Usuario (username, password, rol) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ps.setString(3, rol);
+            ps.executeUpdate();
+            System.out.println("✓ Usuario '" + username + "' creado correctamente.");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al crear usuario: " + e.getMessage());
+        }
+    }
+
+
+// ==================== ELIMINAR TUPLAS ====================
+
+    public static void eliminarPropietario(int idPropietario) {
+        String sql = "DELETE FROM Propietario WHERE idPropietario = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPropietario);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Propietario con id " + idPropietario + " eliminado.");
+            else           System.out.println("⚠ No se encontró propietario con id " + idPropietario + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar propietario: " + e.getMessage());
+        }
+    }
+
+    public static void eliminarPaciente(int idPaciente) {
+        String sql = "DELETE FROM Paciente WHERE idPaciente = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idPaciente);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Paciente con id " + idPaciente + " eliminado.");
+            else           System.out.println("⚠ No se encontró paciente con id " + idPaciente + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar paciente: " + e.getMessage());
+        }
+    }
+
+    public static void eliminarVeterinario(int idVeterinario) {
+        String sql = "DELETE FROM Veterinario WHERE idVeterinario = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idVeterinario);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Veterinario con id " + idVeterinario + " eliminado.");
+            else           System.out.println("⚠ No se encontró veterinario con id " + idVeterinario + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar veterinario: " + e.getMessage());
+        }
+    }
+
+    public static void eliminarCita(int idCita) {
+        String sql = "DELETE FROM Cita WHERE idCita = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idCita);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Cita con id " + idCita + " eliminada.");
+            else           System.out.println("⚠ No se encontró cita con id " + idCita + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar cita: " + e.getMessage());
+        }
+    }
+
+    public static void eliminarHistorial(int idHistorial) {
+        String sql = "DELETE FROM Historial WHERE idHistorial = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idHistorial);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Historial con id " + idHistorial + " eliminado.");
+            else           System.out.println("⚠ No se encontró historial con id " + idHistorial + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar historial: " + e.getMessage());
+        }
+    }
+
+    public static void eliminarVacuna(int idVacuna) {
+        String sql = "DELETE FROM Vacuna WHERE idVacuna = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idVacuna);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Vacuna con id " + idVacuna + " eliminada.");
+            else           System.out.println("⚠ No se encontró vacuna con id " + idVacuna + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar vacuna: " + e.getMessage());
+        }
+    }
+
+    public static void eliminarFactura(int idFactura) {
+        String sql = "DELETE FROM Factura WHERE idFactura = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idFactura);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Factura con id " + idFactura + " eliminada.");
+            else           System.out.println("⚠ No se encontró factura con id " + idFactura + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar factura: " + e.getMessage());
+        }
+    }
+
+    public static void eliminarUsuario(int idUsuario) {
+        String sql = "DELETE FROM Usuario WHERE idUsuario = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            int filas = ps.executeUpdate();
+            if (filas > 0) System.out.println("✓ Usuario con id " + idUsuario + " eliminado.");
+            else           System.out.println("⚠ No se encontró usuario con id " + idUsuario + ".");
+        } catch (SQLException e) {
+            System.err.println("✗ Error al eliminar usuario: " + e.getMessage());
+        }
+    }
+
 }
